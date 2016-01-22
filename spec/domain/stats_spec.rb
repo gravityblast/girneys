@@ -5,7 +5,7 @@ class FakeRedis
 end
 
 RSpec.describe Stats do
-  describe '#calculate_totals' do
+  describe '#totals' do
     context 'overall' do
       it 'returns overall totals' do
         redis = FakeRedis.new
@@ -19,7 +19,7 @@ RSpec.describe Stats do
           total_opened: 8,
           total_clicks: 2
         }
-        expect(stats.calculate_totals).to eq(expected)
+        expect(stats.totals).to eq(expected)
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe Stats do
           total_opened: 8,
           total_clicks: 2
         }
-        expect(stats.calculate_totals year: 2015).to eq(expected)
+        expect(stats.totals year: 2015).to eq(expected)
       end
     end
 
@@ -53,7 +53,7 @@ RSpec.describe Stats do
           total_opened: 8,
           total_clicks: 2
         }
-        expect(stats.calculate_totals year: 2015, month: 8).to eq(expected)
+        expect(stats.totals year: 2015, month: 8).to eq(expected)
       end
     end
   end
@@ -120,6 +120,58 @@ RSpec.describe Stats do
           click: 20.0
         }
         expect(stats.rates year: 2015, month: 8, email_type: :shipment).to eq(expected)
+      end
+    end
+  end
+
+  describe '#all' do
+    context 'with 2 email types' do
+      it 'returns all stats' do
+        redis = FakeRedis.new
+
+        # types
+        expect(redis).to receive(:get).with('email.types').and_return(['shipment', 'confirmation'])
+
+        # all
+        expect(redis).to receive(:get).with('emails.send.overall').twice.and_return(10)
+        expect(redis).to receive(:get).with('emails.open.overall').twice.and_return(8)
+        expect(redis).to receive(:get).with('emails.click.overall').twice.and_return(2)
+        # shipment
+        expect(redis).to receive(:get).with('emails.send.overall.type:shipment').and_return(20)
+        expect(redis).to receive(:get).with('emails.open.overall.type:shipment').and_return(20)
+        expect(redis).to receive(:get).with('emails.click.overall.type:shipment').and_return(18)
+        # confirmation
+        expect(redis).to receive(:get).with('emails.send.overall.type:confirmation').and_return(30)
+        expect(redis).to receive(:get).with('emails.open.overall.type:confirmation').and_return(15)
+        expect(redis).to receive(:get).with('emails.click.overall.type:confirmation').and_return(10)
+
+        stats = Stats.new redis
+        expected = {
+          total_sent: 10,
+          total_opened: 8,
+          total_clicks: 2,
+          rates: {
+            open: 80.0,
+            click: 20.0
+          },
+          email_types: [
+            {
+              name: 'shipment',
+              rates: {
+                open: 100.0,
+                click: 90.0
+              }
+            },
+            {
+              name: 'confirmation',
+              rates: {
+                open: 50.0,
+                click: 33.33
+              }
+            },
+          ]
+        }
+        expect(stats.all).to eq(expected)
       end
     end
   end
