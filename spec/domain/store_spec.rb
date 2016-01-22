@@ -49,9 +49,11 @@ RSpec.describe Store do
       it 'increments 6 counters' do
         expect(redis).to receive(:incr).exactly(6).times
         expect(redis).to receive(:sadd).with('email.types', 'shipment').exactly(1).times
+        expect(redis).to receive(:sadd).with('years', '2015').exactly(1).times
+        expect(redis).to receive(:sadd).with('year.months:2015', '05').exactly(1).times
 
         store = Store.new redis
-        store.save Event.new data: { 'Event' => 'send', 'EmailType' => 'Shipment'}
+        store.save Event.new data: { 'Event' => 'send', 'EmailType' => 'Shipment', 'Timestamp' => 1432820704}
       end
     end
   end

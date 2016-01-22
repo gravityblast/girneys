@@ -19,6 +19,10 @@ class Store
     end
 
     redis.sadd 'email.types', email_type
+    if time = time_at(event.data['Timestamp'])
+      redis.sadd 'years', time.year.to_s
+      redis.sadd "year.months:#{time.year}", ("%02d" % time.month)
+    end
   end
 
   def keys_for event_name, email_type
@@ -43,5 +47,10 @@ class Store
       # sent emails in year/month for specific type
       "emails.#{event_name}.year.month.type:#{year}:#{month}:#{type}",
     ]
+  end
+
+  def time_at timestamp
+    Time.at timestamp
+  rescue
   end
 end
