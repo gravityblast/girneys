@@ -6,21 +6,7 @@ class Stats
   end
 
   def totals year: nil, month: nil, email_type: nil
-    keys, values = if year && month
-      ["year.month", ":#{year.to_i}:#{"%02d" % month.to_i}"]
-    elsif year
-      ["year", ":#{year.to_s}"]
-    else
-      ['overall', '']
-    end
-
-    if email_type
-      keys << '.type'
-      values << ":#{email_type}"
-    end
-
-    suffix = "#{keys}#{values}"
-
+    suffix = key_suffix year: year, month: month, email_type: email_type
     sent = redis.get("emails.send.#{suffix}").to_f
     opened = redis.get("emails.open.#{suffix}").to_f
     clicked = redis.get("emails.click.#{suffix}").to_f
@@ -33,9 +19,8 @@ class Stats
   end
 
   def rates year: nil, month: nil, email_type: nil
-    counts = totals year: year, month: month, email_type: email_type
-
-    open_rate = counts[:total_sent] > 0 ? 100 * counts[:total_opened] / counts[:total_sent] : 0
+    counts     = totals year: year, month: month, email_type: email_type
+    open_rate  = counts[:total_sent] > 0 ? 100 * counts[:total_opened] / counts[:total_sent] : 0
     click_rate = counts[:total_sent] > 0 ? 100 * counts[:total_clicks] / counts[:total_sent] : 0
 
     {
@@ -57,5 +42,24 @@ class Stats
     end
 
     result
+  end
+
+  private
+
+  def key_suffix year: nil, month: nil, email_type: nil
+    keys, values = if year && month
+      ["year.month", ":#{year.to_i}:#{"%02d" % month.to_i}"]
+    elsif year
+      ["year", ":#{year.to_s}"]
+    else
+      ['overall', '']
+    end
+
+    if email_type
+      keys << '.type'
+      values << ":#{email_type}"
+    end
+
+    "#{keys}#{values}"
   end
 end

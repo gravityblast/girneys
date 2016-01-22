@@ -26,6 +26,7 @@ class Store
     today = Date.today
     year  = today.year
     month = "%02d" % today.month
+
     [
       # sent emails
       "emails.#{event_name}.overall",
