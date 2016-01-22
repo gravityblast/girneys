@@ -1,10 +1,19 @@
 require 'rails_helper'
 
+class FakeRedisBackend
+  def get k; end
+  def set k, v; end
+  def sadd k, v; end
+  def smembers k; [] end
+end
+
+RedisBackend = FakeRedisBackend.new
+
 RSpec.describe EventsController, :type => :controller do
   context 'valid data' do
     it 'saves the event' do
       expect do
-        post :create, EmailType: 'shipment', 'Event': 'foo'
+        post :create, params: { EmailType: 'shipment', 'Event': 'foo' }
       end.to change(Event, :count).by(1)
     end
   end
