@@ -2,3 +2,15 @@
 <div data-widget="reload" data-widget-ms="500" data-widget-url="<%= request.fullpath %>">
   <%= render partial: 'main', locals: { data: @data }%>
 </div>
+
+<h2>By Date</h2>
+<ul>
+  <% @data[:available_dates].each do |date| %>
+    <%= link_to date[:year], root_path(year: date[:year]) %>
+    <ul>
+      <% date[:months].each do |month| %>
+        <%= link_to "#{date[:year]}/#{month}", root_path(year: date[:year], month: month) %>
+      <% end %>
+    </ul>
+  <% end %>
+</ul>

@@ -12,40 +12,40 @@ class Store
     return unless VALID_EVENT_NAMES.include? event_name
 
     email_type = event.data['EmailType'].to_s.downcase
-    keys = keys_for event_name, email_type
+    time = time_at event.data['Timestamp']
+    keys = keys_for event_name, email_type, time
 
     keys.each do |key|
       redis.incr key
     end
 
     redis.sadd 'email.types', email_type
-    if time = time_at(event.data['Timestamp'])
+    if time
       redis.sadd 'years', time.year.to_s
       redis.sadd "year.months:#{time.year}", ("%02d" % time.month)
     end
   end
 
-  def keys_for event_name, email_type
-    type = email_type
-    today = Date.today
-    year  = today.year
-    month = "%02d" % today.month
+  def keys_for event_name, email_type, time
+    time ||= Time.now
+    year  = time.year
+    month = "%02d" % time.month
 
     [
       # sent emails
       "emails.#{event_name}.overall",
       # sent emails of specific type
-      "emails.#{event_name}.overall.type:#{type}",
+      "emails.#{event_name}.overall.type:#{email_type}",
 
       # sent emails in year
       "emails.#{event_name}.year:#{year}",
       # sent emails in year for specific type
-      "emails.#{event_name}.year.type:#{year}:#{type}",
+      "emails.#{event_name}.year.type:#{year}:#{email_type}",
 
       # sent emails in year/month
       "emails.#{event_name}.year.month:#{year}:#{month}",
       # sent emails in year/month for specific type
-      "emails.#{event_name}.year.month.type:#{year}:#{month}:#{type}",
+      "emails.#{event_name}.year.month.type:#{year}:#{month}:#{email_type}",
     ]
   end
 

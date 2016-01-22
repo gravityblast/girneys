@@ -130,6 +130,10 @@ RSpec.describe Stats do
       it 'returns all stats' do
         redis = FakeRedis.new
 
+        # dates
+        expect(redis).to receive(:smembers).with('years').and_return(['2015'])
+        expect(redis).to receive(:smembers).with('year.months:2015').and_return(['09', '10', '11', '12'])
+
         # types
         expect(redis).to receive(:smembers).with('email.types').and_return(['shipment', 'confirmation'])
 
@@ -148,9 +152,15 @@ RSpec.describe Stats do
 
         stats = Stats.new redis
         expected = {
-          total_sent: 10,
-          total_opened: 8,
-          total_clicks: 2,
+          total_sent: 10.0,
+          total_opened: 8.0,
+          total_clicks: 2.0,
+          available_dates: [
+            {
+              year: '2015',
+              months: ['09', '10', '11', '12']
+            }
+          ],
           rates: {
             open: 80.0,
             click: 20.0

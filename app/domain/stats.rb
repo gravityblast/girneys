@@ -30,14 +30,22 @@ class Stats
   end
 
   def all year: nil, month: nil
-    result = totals
+    result = totals year: year, month: month
     result[:rates] = rates year: year, month: month
-    result[:email_types] = []
 
+    result[:email_types] = []
     redis.smembers('email.types').to_a.each do |type|
       result[:email_types] << {
         name: type,
         rates: rates(year: year, month: month, email_type: type)
+      }
+    end
+
+    result[:available_dates] = []
+    redis.smembers('years').to_a.sort.reverse.each do |year|
+      result[:available_dates] << {
+        year: year,
+        months: redis.smembers("year.months:#{year}").to_a
       }
     end
 

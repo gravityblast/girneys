@@ -10,10 +10,8 @@ RSpec.describe Store do
 
   describe '#keys_for' do
     it 'builds all-time/year/month keys for a given event' do
-      allow(Date).to receive(:today).and_return(Date.parse('2015-10-01'))
-
       store = Store.new nil
-      keys = store.keys_for :send, 'shipment'
+      keys = store.keys_for :send, 'shipment', Date.parse('2015-10-01')
 
       expected = [
         # sent emails
