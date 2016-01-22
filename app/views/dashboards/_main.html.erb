@@ -4,20 +4,20 @@
 </p>
 
 <p>
-total number of emails opened: <%= data[:total_opened] %>
-  </p>
+  total number of emails opened: <%= data[:total_opened] %>
+</p>
 
-  <p>
+<p>
   total number of clicks: <%= data[:total_clicks] %>
 </p>
 
-<h2>By email type<h2>
+<h2>By email type</h2>
 <ul>
   <% data[:email_types].each do |type| %>
     <li>
-    <strong><%= type[:name] %></strong>
-    open rate <%= type.dig :rates, :open %>%
-    click rate <%= type.dig :rates, :open %>%
+      <strong><%= type[:name] %></strong>
+      open rate <%= type.dig :rates, :open %>%
+      click rate <%= type.dig :rates, :open %>%
     </li>
   <% end %>
 </ul>
