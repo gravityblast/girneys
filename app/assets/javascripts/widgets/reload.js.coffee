@@ -1,7 +1,11 @@
 class ReloadWidget extends BaseWidget
   init: ->
-    window.setTimeout ->
-      window.location.reload()
-    , @options.ms
+    @loop()
+
+  loop: =>
+    window.setTimeout @reload, @options.ms
+
+  reload: =>
+    @element.load @options['url'], null, @loop
 
 Widgets.register 'reload', ReloadWidget
