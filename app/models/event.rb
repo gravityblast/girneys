@@ -9,4 +9,12 @@ end
 class Event < ApplicationRecord
   validates :data, presence: true
   validates_with EventDataFormatValidator
+
+  after_create :save_to_store
+
+  private
+
+  def save_to_store
+    Store.new(RedisBackend).save self
+  end
 end

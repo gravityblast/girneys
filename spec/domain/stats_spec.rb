@@ -2,6 +2,7 @@ require 'rails_helper'
 
 class FakeRedis
   def get key; end
+  def smembers key; end
 end
 
 RSpec.describe Stats do
@@ -130,7 +131,7 @@ RSpec.describe Stats do
         redis = FakeRedis.new
 
         # types
-        expect(redis).to receive(:get).with('email.types').and_return(['shipment', 'confirmation'])
+        expect(redis).to receive(:smembers).with('email.types').and_return(['shipment', 'confirmation'])
 
         # all
         expect(redis).to receive(:get).with('emails.send.overall').twice.and_return(10)

@@ -55,7 +55,7 @@ class Stats
     result[:rates] = rates year: year, month: month
     result[:email_types] = []
 
-    redis.get('email.types').to_a.each do |type|
+    redis.smembers('email.types').to_a.each do |type|
       result[:email_types] << {
         name: type,
         rates: rates(year: year, month: month, email_type: type)
